@@ -37,22 +37,26 @@ class EmojiArtViewController: UIViewController {
         }
     }
     
-    @IBAction func save(_ sender: UIBarButtonItem) {
-        if let json = emojiArt?.json {
-            if let url = try? FileManager.default.url(for: .documentDirectory,
-                                                      in: .userDomainMask,
-                                                      appropriateFor: nil,
-                                                      create: true).appending(path:"Untitled.json") {
-                do {
-                    try json.write(to: url)
-                    print("saved successfully")
-                } catch let error {
-                    print("couldn't save \(error)")
-                }
-            }
+    var document: EmojiArtDocument?
+    
+    @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+        document?.emojiArt = emojiArt
+        if document?.emojiArt != nil {
+            document?.updateChangeCount(.done)
         }
     }
     
+    @IBAction func close(_ sender: UIBarButtonItem) {
+        save()
+        if document?.emojiArt != nil {
+            document?.thumbnail = emojiArtView.snapshot
+            
+                }
+        
+        dismiss(animated: true) {
+            self.document?.close()
+        }
+    }
     
     
     
@@ -85,13 +89,12 @@ class EmojiArtViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let url = try? FileManager.default.url(for: .documentDirectory,
-                                                  in: .userDomainMask,
-                                                  appropriateFor: nil,
-                                                  create: true).appending(path:"Untitled.json") {
-            if let jsonData = try? Data(contentsOf: url) {
-                emojiArt = EmojiArt(json: jsonData)
+        document?.open { success in
+            if success {
+                self.title = self.document?.localizedName
+                self.emojiArt = self.document?.emojiArt
             }
+            
         }
     }
     

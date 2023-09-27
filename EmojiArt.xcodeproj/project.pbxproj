@@ -22,8 +22,31 @@
 		3877E4B42AC2FB850053F837 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3877E4B32AC2FB850053F837 /* Utilities.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		38462EA82AC454C2004BA76D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		38CC7E0D2AC45DCA00BE9FCF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		3877E48D2AC2F7BD0053F837 /* EmojiArt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmojiArt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3877E48D2AC2F7BD0053F837 /* EmojiArt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = EmojiArt.app; path = "/Users/vosik/EmojiArt/build/Debug-iphoneos/EmojiArt.app"; sourceTree = "<absolute>"; };
 		3877E4902AC2F7BD0053F837 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3877E4922AC2F7BD0053F837 /* DocumentBrowserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentBrowserViewController.swift; sourceTree = "<group>"; };
 		3877E4962AC2F7BD0053F837 /* EmojiArtDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiArtDocument.swift; sourceTree = "<group>"; };
@@ -55,16 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				3877E48F2AC2F7BD0053F837 /* EmojiArt */,
-				3877E48E2AC2F7BD0053F837 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		3877E48E2AC2F7BD0053F837 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				3877E48D2AC2F7BD0053F837 /* EmojiArt.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		3877E48F2AC2F7BD0053F837 /* EmojiArt */ = {
@@ -106,6 +120,8 @@
 				3877E4892AC2F7BD0053F837 /* Sources */,
 				3877E48A2AC2F7BD0053F837 /* Frameworks */,
 				3877E48B2AC2F7BD0053F837 /* Resources */,
+				38462EA82AC454C2004BA76D /* Embed Frameworks */,
+				38CC7E0D2AC45DCA00BE9FCF /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -140,7 +156,7 @@
 				Base,
 			);
 			mainGroup = 3877E4842AC2F7BD0053F837;
-			productRefGroup = 3877E48E2AC2F7BD0053F837 /* Products */;
+			productRefGroup = 3877E4842AC2F7BD0053F837;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
