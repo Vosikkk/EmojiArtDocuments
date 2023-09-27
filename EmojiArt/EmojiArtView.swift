@@ -7,9 +7,16 @@
 
 import UIKit
 
+protocol EmojiArtViewDelegate: AnyObject {
+    func emojiArtViewDidChange(_ sender: EmojiArtView)
+}
+
 class EmojiArtView: UIView {
     
     var backgroundImage: UIImage? { didSet { setNeedsDisplay()} }
+   
+    weak var delegate: EmojiArtViewDelegate?
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,12 +57,12 @@ extension EmojiArtView: UIDropInteractionDelegate {
             let dropPoint = session.location(in: self)
             for attrebitedString in providers as? [NSAttributedString] ?? [] {
                 self.addLabel(with: attrebitedString, centeredAt: dropPoint)
-                
+                self.delegate?.emojiArtViewDidChange(self)
             }
         }
     }
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
         return UIDropProposal(operation: .copy)
     }
-    
 }
+

@@ -172,11 +172,6 @@
                                 <action selector="close:" destination="dtt-Vy-g51" id="e5E-Wc-rwV"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="8b9-lz-5nK">
-                            <connections>
-                                <action selector="save:" destination="dtt-Vy-g51" id="gCh-b5-cPF"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="dropZone" destination="N08-vh-ov8" id="321-zy-E0g"/>

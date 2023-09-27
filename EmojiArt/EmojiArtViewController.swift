@@ -34,25 +34,25 @@ class EmojiArtViewController: UIViewController {
             emojiCollectionView.delegate = self
             emojiCollectionView.dragDelegate = self
             emojiCollectionView.dropDelegate = self
+            emojiCollectionView.dragInteractionEnabled = true
         }
     }
     
     var document: EmojiArtDocument?
     
-    @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+//    @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+    func documentChanged() {
         document?.emojiArt = emojiArt
         if document?.emojiArt != nil {
             document?.updateChangeCount(.done)
         }
     }
+   // }
     
     @IBAction func close(_ sender: UIBarButtonItem) {
-        save()
-        if document?.emojiArt != nil {
+       if document?.emojiArt != nil {
             document?.thumbnail = emojiArtView.snapshot
-            
-                }
-        
+        }
         dismiss(animated: true) {
             self.document?.close()
         }
@@ -98,7 +98,11 @@ class EmojiArtViewController: UIViewController {
         }
     }
     
-    var emojiArtView = EmojiArtView()
+   lazy var emojiArtView: EmojiArtView = {
+        let view = EmojiArtView()
+        view.delegate = self
+        return view
+    }()
     
     var imageFetcher: ImageFetcher!
     
@@ -145,6 +149,13 @@ class EmojiArtViewController: UIViewController {
             return []
         }
     }
+    
+    private func presentBadURLWarning(for url: URL?) {
+        let alert = UIAlertController(title: "Image Transfer Failed",
+                                      message: "Couldn't transfer the dropped image from its source",
+                                      preferredStyle: .alert)
+        present(alert, animated: true)
+    }
 }
 
 // MARK: - UIDropInteractionDelegate
@@ -162,11 +173,22 @@ extension EmojiArtViewController: UIDropInteractionDelegate {
         imageFetcher = ImageFetcher() { (url, image) in
             DispatchQueue.main.async {
                 self.emojiArtBackGroundImage = (url, image)
+                self.documentChanged()
             }
         }
         session.loadObjects(ofClass: NSURL.self) { nsurls in
             if let url = nsurls.first as? URL {
-                self.imageFetcher.fetch(url)
+                //self.imageFetcher.fetch(url)
+                DispatchQueue.global(qos: .userInitiated).async {
+                    if let imageData = try? Data(contentsOf: url.imageURL), let image = UIImage(data: imageData) {
+                        DispatchQueue.main.async {
+                            self.emojiArtBackGroundImage = (url, image)
+                            self.documentChanged()
+                        }
+                    } else {
+                        self.presentBadURLWarning(for: url)
+                    }
+                }
             }
         }
         session.loadObjects(ofClass: UIImage.self) { images in
@@ -317,6 +339,12 @@ extension EmojiArtViewController: UICollectionViewDropDelegate {
                 }
             }
         }
+    }
+}
+
+extension EmojiArtViewController: EmojiArtViewDelegate {
+    func emojiArtViewDidChange(_ sender: EmojiArtView) {
+        documentChanged()
     }
 }
 
