@@ -8,7 +8,7 @@
 import UIKit
 
 class EmojiArtViewController: UIViewController {
-
+    
     @IBOutlet weak var dropZone: UIView! {
         didSet {
             dropZone.addInteraction(UIDropInteraction(delegate: self))
@@ -40,17 +40,17 @@ class EmojiArtViewController: UIViewController {
     
     var document: EmojiArtDocument?
     
-//    @IBAction func save(_ sender: UIBarButtonItem? = nil) {
+    //    @IBAction func save(_ sender: UIBarButtonItem? = nil) {
     func documentChanged() {
         document?.emojiArt = emojiArt
         if document?.emojiArt != nil {
             document?.updateChangeCount(.done)
         }
     }
-   // }
+    // }
     
     @IBAction func close(_ sender: UIBarButtonItem) {
-       if document?.emojiArt != nil {
+        if document?.emojiArt != nil {
             document?.thumbnail = emojiArtView.snapshot
         }
         dismiss(animated: true) {
@@ -60,7 +60,7 @@ class EmojiArtViewController: UIViewController {
     
     
     
-        // MARK: Model
+    // MARK: Model
     
     var emojiArt: EmojiArt? {
         get {
@@ -98,11 +98,13 @@ class EmojiArtViewController: UIViewController {
         }
     }
     
-   lazy var emojiArtView: EmojiArtView = {
+    lazy var emojiArtView: EmojiArtView = {
         let view = EmojiArtView()
         view.delegate = self
         return view
     }()
+    
+    private var suppressBadURLWarnings = false
     
     var imageFetcher: ImageFetcher!
     
@@ -151,16 +153,25 @@ class EmojiArtViewController: UIViewController {
     }
     
     private func presentBadURLWarning(for url: URL?) {
-        let alert = UIAlertController(title: "Image Transfer Failed",
-                                      message: "Couldn't transfer the dropped image from its source",
-                                      preferredStyle: .alert)
-        present(alert, animated: true)
+        if !suppressBadURLWarnings {
+            let alert = UIAlertController(title: "Image Transfer Failed",
+                                          message: "Couldn't transfer the dropped image from its source \nShow this warning in the future?",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Keep Warning",
+                                          style: .default))
+            alert.addAction(UIAlertAction(title: "Stop Warning",
+                                          style: .destructive) { action in
+                self.suppressBadURLWarnings = true
+            })
+            
+            present(alert, animated: true)
+        }
     }
 }
 
 // MARK: - UIDropInteractionDelegate
 extension EmojiArtViewController: UIDropInteractionDelegate {
-   
+    
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
         return session.canLoadObjects(ofClass: NSURL.self) && session.canLoadObjects(ofClass: UIImage.self)
     }
@@ -176,9 +187,10 @@ extension EmojiArtViewController: UIDropInteractionDelegate {
                 self.documentChanged()
             }
         }
+        
         session.loadObjects(ofClass: NSURL.self) { nsurls in
             if let url = nsurls.first as? URL {
-                //self.imageFetcher.fetch(url)
+                //  self.imageFetcher.fetch(url)
                 DispatchQueue.global(qos: .userInitiated).async {
                     if let imageData = try? Data(contentsOf: url.imageURL), let image = UIImage(data: imageData) {
                         DispatchQueue.main.async {
@@ -186,7 +198,10 @@ extension EmojiArtViewController: UIDropInteractionDelegate {
                             self.documentChanged()
                         }
                     } else {
-                        self.presentBadURLWarning(for: url)
+                        DispatchQueue.main.async {
+                            self.presentBadURLWarning(for: url)
+                        }
+                        
                     }
                 }
             }
@@ -216,11 +231,11 @@ extension EmojiArtViewController: UIScrollViewDelegate {
 // MARK: - UICollectionViewDragDelegate
 extension EmojiArtViewController: UICollectionViewDragDelegate {
     
-   func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         session.localContext = collectionView
         return dragItems(at: indexPath)
     }
-   
+    
     
     func collectionView(_ collectionView: UICollectionView, itemsForAddingTo session: UIDragSession, at indexPath: IndexPath, point: CGPoint) -> [UIDragItem] {
         return dragItems(at: indexPath)
@@ -255,7 +270,7 @@ extension EmojiArtViewController: UICollectionViewDataSource {
                 }
             }
             return cell
-                        
+            
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddButtonEmojiCell", for: indexPath)
             return cell
@@ -264,9 +279,9 @@ extension EmojiArtViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
-            case 0: return 1
-            case 1: return emojis.count
-            default: return 0
+        case 0: return 1
+        case 1: return emojis.count
+        default: return 0
         }
     }
 }
