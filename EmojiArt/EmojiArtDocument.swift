@@ -7,10 +7,9 @@
 
 import UIKit
 
-
 class EmojiArtDocument: UIDocument {
     
-    
+  
     var emojiArt: EmojiArt?
     var thumbnail: UIImage?
     

@@ -54,7 +54,11 @@ class EmojiArtViewController: UIViewController {
             document?.thumbnail = emojiArtView.snapshot
         }
         dismiss(animated: true) {
-            self.document?.close()
+            self.document?.close{ success in
+                if let observer = self.documentObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                }
+            }
         }
     }
     
@@ -87,8 +91,19 @@ class EmojiArtViewController: UIViewController {
         }
     }
     
+    private var documentObserver: NSObjectProtocol?
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+       
+        documentObserver = NotificationCenter.default.addObserver(
+            forName: UIDocument.stateChangedNotification,
+            object: document,
+            queue: OperationQueue.main,
+            using: { notification in
+                print("DocumentState changed \(self.document!.documentState)")
+            })
+        
         document?.open { success in
             if success {
                 self.title = self.document?.localizedName
