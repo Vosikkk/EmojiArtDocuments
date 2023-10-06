@@ -11,11 +11,17 @@ protocol EmojiArtViewDelegate: AnyObject {
     func emojiArtViewDidChange(_ sender: EmojiArtView)
 }
 
+extension Notification.Name {
+    static let EmojiArtViewDidChange = Notification.Name("EmojiArtViewDidChange")
+}
+
 class EmojiArtView: UIView {
     
     var backgroundImage: UIImage? { didSet { setNeedsDisplay()} }
    
     weak var delegate: EmojiArtViewDelegate?
+    
+    private var labelObservations = [UIView: NSKeyValueObservation]()
     
     
     override init(frame: CGRect) {
@@ -33,6 +39,13 @@ class EmojiArtView: UIView {
         backgroundImage?.draw(in: bounds)
     }
     
+    override func willRemoveSubview(_ subview: UIView) {
+        super.willRemoveSubview(subview)
+        if labelObservations[subview] != nil {
+            labelObservations[subview] = nil
+        }
+    }
+    
     private func setup() {
         addInteraction(UIDropInteraction(delegate: self))
     }
@@ -45,6 +58,10 @@ class EmojiArtView: UIView {
         label.center = point
         addEmojiArtGestureRecognizers(to: label)
         addSubview(label)
+        labelObservations[label] = label.observe(\.center) { label, change in
+            self.delegate?.emojiArtViewDidChange(self)
+            NotificationCenter.default.post(name: .EmojiArtViewDidChange, object: self)
+        }
     }
 
 }
@@ -58,6 +75,7 @@ extension EmojiArtView: UIDropInteractionDelegate {
             for attrebitedString in providers as? [NSAttributedString] ?? [] {
                 self.addLabel(with: attrebitedString, centeredAt: dropPoint)
                 self.delegate?.emojiArtViewDidChange(self)
+                NotificationCenter.default.post(name: .EmojiArtViewDidChange, object: self)
             }
         }
     }

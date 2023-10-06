@@ -50,6 +50,11 @@ class EmojiArtViewController: UIViewController {
     // }
     
     @IBAction func close(_ sender: UIBarButtonItem) {
+       
+        if let observer = emojiArtViewObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        
         if document?.emojiArt != nil {
             document?.thumbnail = emojiArtView.snapshot
         }
@@ -92,6 +97,7 @@ class EmojiArtViewController: UIViewController {
     }
     
     private var documentObserver: NSObjectProtocol?
+    private var emojiArtViewObserver: NSObjectProtocol?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -108,16 +114,19 @@ class EmojiArtViewController: UIViewController {
             if success {
                 self.title = self.document?.localizedName
                 self.emojiArt = self.document?.emojiArt
+                self.emojiArtViewObserver = NotificationCenter.default.addObserver(
+                    forName: .EmojiArtViewDidChange,
+                    object: self.emojiArtView,
+                    queue: OperationQueue.main,
+                    using: { notification in
+                        self.documentChanged()
+                    })
             }
             
         }
     }
     
-    lazy var emojiArtView: EmojiArtView = {
-        let view = EmojiArtView()
-        view.delegate = self
-        return view
-    }()
+    lazy var emojiArtView = EmojiArtView()
     
     private var suppressBadURLWarnings = false
     
@@ -369,12 +378,6 @@ extension EmojiArtViewController: UICollectionViewDropDelegate {
                 }
             }
         }
-    }
-}
-
-extension EmojiArtViewController: EmojiArtViewDelegate {
-    func emojiArtViewDidChange(_ sender: EmojiArtView) {
-        documentChanged()
     }
 }
 
