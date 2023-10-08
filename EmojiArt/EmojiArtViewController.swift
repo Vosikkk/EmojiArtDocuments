@@ -9,6 +9,18 @@ import UIKit
 
 class EmojiArtViewController: UIViewController {
     
+    //MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "Show Document Info" {
+            if let destanation = segue.destination.contents as? DocumentInfoViewController {
+                document?.thumbnail = emojiArtView.snapshot
+                destanation.document = document
+            }
+        }
+    }
+    
+    
+    
     @IBOutlet weak var dropZone: UIView! {
         didSet {
             dropZone.addInteraction(UIDropInteraction(delegate: self))
@@ -58,8 +70,8 @@ class EmojiArtViewController: UIViewController {
         if document?.emojiArt != nil {
             document?.thumbnail = emojiArtView.snapshot
         }
-        dismiss(animated: true) {
-            self.document?.close{ success in
+        presentingViewController?.dismiss(animated: true) {
+            self.document?.close { success in
                 if let observer = self.documentObserver {
                     NotificationCenter.default.removeObserver(observer)
                 }
