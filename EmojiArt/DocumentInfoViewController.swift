@@ -9,11 +9,13 @@ import UIKit
 
 class DocumentInfoViewController: UIViewController {
     
+    @IBOutlet weak var topLevelView: UIStackView!
     @IBOutlet weak var thumbnailAspectRatio: NSLayoutConstraint!
-    
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var sizeLabel: UILabel!
     @IBOutlet weak var createdDateLabel: UILabel!
+    @IBOutlet weak var returnToDocumentButton: UIButton!
+   
     var document: EmojiArtDocument? {
         didSet {
             updateUI()
@@ -31,9 +33,15 @@ class DocumentInfoViewController: UIViewController {
         super.viewDidLoad()
         updateUI()
     }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if let fittedSize = topLevelView?.sizeThatFits(UIView.layoutFittingCompressedSize) {
+            preferredContentSize = CGSize(width: fittedSize.width + 30, height: fittedSize.height + 30)
+        }
+    }
     
     private func updateUI() {
-        if sizeLabel != nil, createdDateLabel != nil, let url = document?.fileURL, let attributes = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: true)) {
+        if sizeLabel != nil, createdDateLabel != nil, let url = document?.fileURL, let attributes = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false)) {
             sizeLabel.text = "\(attributes[.size] ?? 0) bytes"
             if let created = attributes[.creationDate] as? Date {
                 createdDateLabel.text = shortDateFormatter.string(from: created)
@@ -54,11 +62,15 @@ class DocumentInfoViewController: UIViewController {
             
             thumbnailImageView.addConstraint(thumbnailAspectRatio)
         }
+        if presentationController is UIPopoverPresentationController {
+            thumbnailImageView?.isHidden = true
+            returnToDocumentButton?.isHidden = true
+            view.backgroundColor = .clear
+        }
     }
     
     
     @IBAction func done() {
         presentingViewController?.dismiss(animated: true)
     }
-    
 }
